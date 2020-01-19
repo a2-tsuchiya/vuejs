@@ -13,7 +13,7 @@ new Vue({
 });
 ```
 
-## テンプレート構文
+### テンプレート構文
 
 ```javascript
 const items = [
@@ -35,7 +35,7 @@ const items = [
 ];
 ```
 
-- ### Mustache記法によるデータの展開（{{ }}）
+- #### Mustache記法によるデータの展開（{{ }}）
 
   - {{と}}の間にデータや式を記述する
 
@@ -53,7 +53,7 @@ const items = [
 
     
 
-- ### ディレクティブによるHTML要素の拡張（v-で始まる属性）
+- #### ディレクティブによるHTML要素の拡張（v-で始まる属性）
 
   -  v-bind:属性名="dataプロパティの属性値"
 
@@ -186,7 +186,7 @@ const items = [
 
       
 
-## フィルタ
+### フィルタ
 
 テキストフォーマット処理をするコンストラクタオプション（パイプ記法）
 
@@ -210,7 +210,7 @@ new Vue({
 
 
 
-## 算出プロパティ（computed）
+### 算出プロパティ（computed）
 
 データそのものに処理を与えたものをプロパティにする
 
@@ -238,7 +238,7 @@ let vm = new Vue({
 
 - thisによる参照・・・**Vueインスタンス自身**を指す
 
-## ライフサイクルフック
+### ライフサイクルフック
 
 Vueインスタンスの生成から消滅までに発生するイベント（フック）
 
@@ -247,7 +247,7 @@ Vueインスタンスの生成から消滅までに発生するイベント（�
 - beforeUpdate/updatedーデータが変更され、DOMに適用される前／後
 - beforeDestroy/destroyedーVueインスタンスが破棄される前／後
 
-## メソッド（methods）
+### メソッド（methods）
 
 Vueインスタンスのメソッドを定義する
 
@@ -267,7 +267,7 @@ methods: {
 <button v-bind:disabled="!canBuy" v-on:click="doBuy">Buy</button>
 ```
 
-## computedとmethodsの違い
+### computedとmethodsの違い
 
 - computedー計算結果をキャッシュし、依存するデータが変更しない限り再計算しない
 
@@ -275,5 +275,143 @@ methods: {
 
 - methodsーキャッシュしない。呼ばれるたびに計算する
 
-## next
 
+
+## コンポーネント
+
+Vue.jsのコンポーネントは、再利用可能なVueインスタンス
+
+### Vueコンポーネントの定義（グローバルコンポーネント）
+
+- #### カスタムタグ方式 - Vue.Component()
+
+  ```javascript
+  Vue.component(tagName, options) //tagName:カスタムタグ
+  ```
+
+  ```html
+  <div id="main">
+    <fruits-list></fruits-list>
+  </div>
+  <script>
+    //子コンポーネント
+    Vue.component('fruits-list-title', {
+      template: '<h1>フルーツ一覧</h1>'
+    });
+    //親コンポーネント
+    Vue.component('fruits-list', {
+      template: '<div><fruits-list-title></fruits-list-title></div>'
+    });
+    new Vue({ el:'#main' });
+  </script>
+  ```
+
+  - コンポーネントは再利用できる
+  - コンポーネントは親子関係をもつ
+
+- #### サブコンストラクタ方式 - Vue.Extend()
+
+  Vueコンストラクタを継承してサブクラスコンストラクタを作成する
+
+  ```html
+  <div id="fruits-list"></div> <!--a.直接インスタンス化する場合-->
+  <div id="fruits-list">
+  	<fruits-list-title></fruits-list-title> <!--b.カスタムタグを使用する場合-->
+  </div>
+  ```
+
+  ```javascript
+  /*vue.js*/
+  let FruitsListTitle = Vue.extend({
+  	template: '<h1>フルーツ一覧</h1>'
+  });
+  // a.直接インスタンス化する場合
+  new FruitsListTitle().$mount('#fruits-list') 
+  // b.カスタムタグを使用する場合
+  Vue.component('fruits-list-title', FruitsListTitle)
+  new Vue({el:'#fruits-list'});
+  ```
+
+- #### ローカルコンポーネントの定義
+
+    特定のVueインスタンスの中でのみ使えるコンポーネント
+
+  ```html
+  <div id="fruits-list">
+    <fruits-list-title></fruits-list-title>
+  </div>
+  <script>
+    new Vue({
+      el: '#fruits-list',
+      components: {
+        // カスタムタグで定義
+        'fruits-list-title': {
+          template: '<h1>フルーツ一覧</h1>'
+        },
+        // サブコンストラクタで定義
+        'fruits-list-title': FruitsListTitle
+      }
+    }); 
+    let FruitsListTitle = Vue.extend({ template:'<h1>フルーツ一覧</h1>' })
+  </script>
+  ```
+
+- #### text/x-template
+
+  1. type="text/x-template"を指定したscript要素にidを付与する
+
+     ※text/x-templateはHTMLが認識できないMINEタイプなのでVue.jsだけが処理する
+
+  2. Vueコンポーネントのtemplteプロパティに定義したidを指定する
+
+  ```html
+  <div id="fruits-list">
+    <fruits-list-title></fruits-list-title>
+  </div>
+  <script type="text/x-template" id="fruits-list-title">
+  		<h1>フルーツ一覧</h1>		
+  </script>
+  <script>
+    Vue.component('fruits-list-title', {
+      template: '#fruits-list-title'
+    });
+    new Vue({
+      el:'#fruits-list'
+    });		
+  </script>
+  ```
+
+  - ある程度複雑なテンプレートを書くときに使うと良いが、分離するので注意する
+
+- #### 描画関数
+
+  render関数を使ってコードで要素を生成する
+
+  ```html
+  <!--<input type="date" value="[today]">を生成する-->
+  <div id="app">
+  		<input-date-with-today></input-date-with-today>
+  	</div>
+  	<script>
+  		Vue.component('input-date-with-today', {
+  			render: function(createElement) {
+  				return createElement(
+  					'input',
+  					{
+  						attrs: {
+  							type: 'date',
+  							value: new Date().toISOString().substring(0,10)
+  						}
+  					}
+  				);
+  			}
+  		});
+  		new Vue({ el:'#app' });
+  	</script>
+  ```
+
+  
+
+- #### 単一ファイルコンポーネント（後述）
+
+## next
