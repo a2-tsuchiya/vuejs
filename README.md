@@ -2,7 +2,13 @@
 
 ## Vueオブジェクト
 
-Vueインスタンスをマウントした要素とその子孫にだけ適用される
+- Vueインスタンスをマウントした要素とその子孫にだけ適用される
+
+- コンポーネントはtemplate, data, methodsで構成する
+- Vueインスタンスのthisは自身を参照する
+- Vueインスタンスのプロパティにアロー関数を使うと詰む！？
+  - アロー関数はthisを束縛しない（呼び出し元のthisが保証される）
+  - アロー関数を使うとthisの参照がwindowになってしまう
 
 ```javascript
 new Vue({
@@ -236,7 +242,7 @@ let vm = new Vue({
 <p>{{totalPriceWithTax}}</p> //1296
 ```
 
-- thisによる参照・・・**Vueインスタンス自身**を指す
+
 
 ### ライフサイクルフック
 
@@ -271,9 +277,30 @@ methods: {
 
 - computedー計算結果をキャッシュし、依存するデータが変更しない限り再計算しない
 
-  ※Vueインスタンスのデータでないもの変更は検知しない（日付、DOMの状態など）
+  ※Vueインスタンスのデータでないものの変更は検知しない（日付、DOMの状態など）
 
 - methodsーキャッシュしない。呼ばれるたびに計算する
+
+
+
+### watch { [key: string]: string | Function | Object | Array}
+
+パラメータの変更を検知する。キーが監視する評価式、値が対応するコールバック関数
+
+例）Ajaxによる非同期通信を行う場合 -> created+watchを使って$routeオブジェクトを監視する
+
+```JavaScript
+const VueComponent = Vue.extend({
+  template: {...},
+  data: {...},
+  created: function() { this.fetchData(); },
+  /*Ajaxによる非同期通信を監視する*/
+  watch: { '$route': 'fetchData' }, //メソッド名を文字列で指定可
+  methods: { fetchData: function() {
+    asyncApiOperation(); //非同期処理
+  }
+}),
+```
 
 
 
@@ -414,4 +441,273 @@ Vue.jsのコンポーネントは、再利用可能なVueインスタンス
 
 - #### 単一ファイルコンポーネント（後述）
 
-## next
+### コンポーネントのデータ
+
+- コンポーネントのdataは関数で定義する
+- コンポーネントの全てのインスタンスでdataオブジェクトを共有する
+
+```javascript
+Vue.component('fruits-list-title', {
+  template: '<h1>{{ fruits[0] }}</h1>',
+  data: function() {
+    return { fruits:['apple','orange'] }
+});
+```
+
+
+
+### コンポーネント間の通信
+
+- #### 親コンポーネント -> props -> 子コンポーネント
+
+  - propsオプション
+
+    ```javascript
+    Vue.component('コンポーネント名', {
+      props: {
+        '親から受け取る属性名': {
+        	type: 'データ型',
+          default: '初期値',
+          required: '必須かどうかの真偽値',
+          validator: 'バリデーション用の関数'
+       	}
+      },
+      template:'<p>{{親から受け取る属性}}</p>' //使える
+    })
+    ```
+
+  - ケバブケースとキャメルケース
+
+    HTMLの属性名は大文字小文字を区別しない（キャメルケースで書いても認識しない）ので、
+
+    HTML内ではケバブケース、JavaScript内ではキャメルケースで記述する。
+
+    ```html
+    <div id="app">
+      <!-- HTML内ではケバブケース-->
+      <item-desc v-bind:item-name="myItem"></item-desc>
+    </div>
+    <script>
+    	Vue.component('item-desc', {
+      	props: {
+          // JavaScript内ではキャメルケース
+        	itemName: {
+          	type: String
+          }
+        },
+        template: '<p>{{itemName}} is useful</p>'
+      });
+    	new Vue({
+      	el:'#app',
+        data:{ myItem:'pen' }
+      });
+    </script>
+    ```
+
+    
+
+- #### 子コンポーネント -> event -> 親コンポーネント
+
+  カスタムイベントを使用する（子で発火させて、親にリスナをセットする）
+
+  <子コンポーネント側>
+
+  1. （クリック時）v-on:clickでaddToCart()メソッドが呼ばれる
+  2. addToCartメソッド内でincrementカスタムイベントが発火する
+
+  <親コンポーネント側>
+
+  3. v-onでincrementイベントをlistenしてるのでイベントが発火する
+  4. incrementCartStaus()メソッドが呼ばれる
+
+  ```html
+  <div id="fruits-counter">
+    <div v-for="fruit in fruits">
+      {{fruit.name}}: 
+      <counter-button v-on:increment="incrementCartStatus()"></counter-button>
+    </div>
+    <p>合計: {{total}}</p>
+  </div>
+  ```
+
+  ```javascript
+  /*子コンポーネント*/
+  let counterButton = Vue.extend({
+    template: '<span>{{counter}}個<button v-on:click="addToCart">追加</button></span>',
+    data: function() { return { counter:0 }; },
+    methods: {
+      addToCart: function() {
+        this.counter += 1;
+        this.$emit('increment');
+      }
+    }
+  });
+  /*親コンポーネント*/
+  new Vue({
+    el:'#fruits-counter',
+    components: {
+      'counter-button': counterButton
+    },
+    data: {
+      total:0,
+      fruits:[
+        {name: 'apple'},
+        {name: 'orange'}
+      ]
+    },
+    methods: {
+      incrementCartStatus: function() {
+        this.total += 1;
+      }
+    }
+  });
+  ```
+
+- propsを使わないで$parentを使う（非推奨）
+
+  ```html
+  <div id="fruits-container">
+    <fruits-container></fruits-container>
+  </div>
+  <script>
+    Vue.component('fruits-container', {
+      template:'<p>{{this.$parent.fruits[0].name}}</p>'・・・親プロパティを参照できる
+    });
+    new Vue({
+      el:'#fruits-container',
+      data: {
+        fruits: [
+          {name:'apple'},
+          {name:'orange'}
+        ]
+      }
+    });
+  </script>
+  ```
+
+  
+
+## ルーティング - Vue Router
+
+### 定義
+
+- ルータコンストラクタを定義してVueインスタンスに渡す
+- router-viw要素ーマッピングしたコンポーネントをレンダリングする
+- router-link要素ーリンクを定義する（宣言的）
+
+```html
+<script src="https://unpkg.com/vue@2.5.17"></script>
+<script src="https://unpkg.com/vue-router@3.0.1"></script>
+```
+
+```javascript
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/someurl',
+      component: { template: 'Vueコンポーネント' }
+    }    
+  ]
+});
+const app = new Vue({ router:router }).$mount('#app');
+```
+
+```html
+<div id="app">
+	<router-link to="/someurl">どこかのページ</router-link>
+  <router-link to="/top">トップページ</router-link>
+  <router-view></router-view>
+</div>
+```
+
+### 機能
+
+- パターンマッチング
+
+  - :（コロン）でパターンを記述できる
+  - $route（Routeオブジェクト）からパラメータを取得できる　＊Routeオブジェクトは後述
+
+  ```JavaScript
+  /* /user/123にアクセスした場合 */
+  {
+  	path: '/user/:userId,
+    component: { template:'<p>ユーザIDは{{ $route.params.userId }}</p>'}
+  }
+  ```
+
+- 名前付きルート
+
+  - ルート定義にnameを指定できる
+  - router-link要素から、nameとURLパターンを渡せる
+
+  ```javascript
+  {
+    path: '/user/:useId',
+    name: 'user'
+    component: {...}
+  }
+  ```
+
+  ```html
+  <router-link to="{ name:'user', params:{userId:123} }"></router-link>
+  ```
+
+- router.push()
+
+  ソース上で直接画面遷移する。パラメータはrouter-link要素のtoと同じ
+
+  ```javascript
+  router.push({ name:'user', params:{userId:123} })
+  ```
+
+- フック関数
+
+  ページ遷移が実行される前後に処理を追加する
+
+  to/fromー遷移先/遷移元のRouteオブジェクト
+
+  nextーフックを解決するための関数。引数で挙動が変わる。nextは必ず呼び出す
+
+  - グローバルのフック関数
+
+    - 全てのページ遷移に対して設定できるフック関数
+
+    ```javascript
+    router.beforeEach(function(to, from, next){
+      if(to.path === '/users')
+        next('/top'); //topへ遷移
+      else
+        next(); //通常通りの遷移
+    });
+    ```
+
+  - ルート単位のフック関数
+
+    - 特定のルート単位でフックを追加する
+
+    ```javascript
+    {
+      path: '/users',
+      component: {...},
+      beforeEnter: function(to, from, next) {
+        if(to.path === '/users')
+          next('/top'); //topへ遷移
+        else
+          next(); //通常通りの遷移
+      }
+    }
+    ```
+
+  - コンポーネント内のフック関数
+
+    ```javascript
+    const UserList = Vue.extend({
+    	template: {...},
+      data: {...},
+      beforeRouteEnter: function(to, from, next) {
+      	...
+      }
+    })
+    ```
+
+- Route

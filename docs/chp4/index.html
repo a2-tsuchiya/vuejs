@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Vue SPA</title>
+</head>
+<body>
+	<div id="app">
+		<nav>
+			<router-link to="/top">トップページ</router-link>
+			<router-link to="/users">ユーザ一覧ページ</router-link>
+			<router-link to="/users/new?redirect=true">新規ユーザ登録</router-link>
+			<router-link to="/login" v-show="!Auth.loggedIn()">ログイン</router-link>
+			<router-link to="/logout" v-show="Auth.loggedIn()">ログアウト</router-link>
+			<router-view></router-view>
+		</nav>
+	</div>
+
+	<script src="https://unpkg.com/vue@2.5.17"></script>
+	<script src="https://unpkg.com/vue-router@3.0.1"></script>
+	<script src="./app.js"></script>
+
+</body>
+</html>
