@@ -710,4 +710,52 @@ const app = new Vue({ router:router }).$mount('#app');
     })
     ```
 
-- Route
+- $routerーRouterインスタンス
+
+  Webアプリケーションに1つ。全般的なRoute機能を管理する
+
+- $routeーRouteオブジェクト
+
+  ルーティングが発生するごとに生成され、アクティブなルートの状態を保持する
+
+  - pathー現在のルートのパス文字列
+  - paramsー定義したURLパターンにマッチしたパラメータをkey/valueのペアで保持するオブジェクト
+  - queryークエリ文字列をkey/valueのペアで保持するオブジェクト
+  - hashー現在のルートのハッシュ値を取得する
+  - fullPathークエリやhashを含む全体のURL
+  - nameー名前付きルートで指定された名前
+
+- ネストされたルート
+
+  ルート定義でchildrenオプションを使う
+
+  ```JavaScript
+  const router = new VueRouter({
+    routes: [
+      { path: '/user/:id', component: User,
+       children: [
+         // URL: /user/:id
+         { path: '', component: UserHome },
+         // URL: /user/:id/profile
+         { path: 'profile', component: UserProfile },
+         // URL: /user/:id/posts
+         { path: 'posts', component: UserPosts }
+       ]
+      }
+    ]
+  })
+  ```
+
+- リダイレクト・エイリアス
+
+  - リダイレクト
+  - エイリアス
+
+- 履歴の管理
+
+  - URL Hash
+  - HTML5 History API
+
+
+
+## 単一ファイルコンポーネント（SFC）
