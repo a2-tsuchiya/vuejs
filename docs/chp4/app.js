@@ -238,7 +238,7 @@ const components = {
 					this.error = null;
 					this.user = this.defaultUser();
 					alert('新規ユーザが登録されました');
-					this.$router.push('.users');
+					this.$router.push('/users');
 				}).catch(err => {
 					this.sending = false;
 					this.error = err.message;
