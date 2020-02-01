@@ -4,6 +4,7 @@
     <router-link to="/users">ユーザ一覧ページ</router-link>
     <router-link to="/users/new">新規ユーザ登録</router-link>
     <router-link to="/login">ログイン</router-link>
+    <router-link to="/logout">ログアウト</router-link>
     <router-view/>
 </div>
 </template>

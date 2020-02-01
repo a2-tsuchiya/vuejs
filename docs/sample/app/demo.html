@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vue SPA</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div id="app">
+        <div class="container mt-5">
+            <div class="col-md-12">
+                <h1>{{ title }}</h1>
+                <button class="btn btn-primary my-2" @click="showModal">ユーザ登録</button>
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>NAME</th>
+                            <th>EMAIL</th>
+                            <th>更新</th>
+                            <th>削除</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="user in users" v-bind:key="user.id">
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.email }}</td>
+                            <td><button class="btn btn-primary" @click="editUser(user)">更新</button></td>
+                            <td><button class="btn btn-danger" @click="deleteUser(user)">削除</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- modal-window -->
+        <modal name="user-modal" height="400" style="padding:10px;">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h2 v-if="createFlag">ユーザ登録</h2>
+                        <h2 v-else>ユーザ更新</h2>
+                    </div>
+                    <div class="card-text">
+                        <div class="form-group">
+                            <label for="id">ID</label>
+                            <input type="text" class="form-control" id="id" placeholder="IDを入力してください" v-model="form.id">
+                        </div>
+                        <div class="form-group">
+                            <label for="name">NAME</label>
+                            <input type="text" class="form-control" id="name" placeholder="NAMEを入力してください" v-model="form.name">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">EMAIL</label>
+                            <input type="email" class="form-control" id="email" placeholder="Emailを入力してください" v-model="form.email">
+                        </div>
+                        <button class="btn btn-primary" @click="registerUser" v-if="createFlag">登録</button>
+                        <button class="btn btn-primary" @click="updateUser" v-else>更新</button>
+                    </div>                    
+                </div>
+            </div>
+        </modal>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-js-modal@1.3.31/dist/index.min.js"></script>
+    <script>
+        Vue.use(window["vue-js-modal"].default);
+        const vue = new Vue({
+            el: '#app',
+            data: {
+                title: 'ユーザ一覧',
+                form: {
+                    id:'',
+                    name:'',
+                    email:''
+                },
+                users: [],
+                editIndex: -1,
+                createFlag: true,
+            },
+            created () {
+                this.users = [
+                    {
+                        id: 1,
+                        name: 'Suzuki Ichiro',
+                        email: 'suzuki@gmail.com'
+                    },
+                    {
+                        id: 2,
+                        name: 'Yamada Hanako',
+                        email: 'yamada@gmail.com'
+                    },
+                    {
+                        id: 3,
+                        name: 'Tanaka Kei',
+                        email: 'tanaka@gmail.com'
+                    }
+                ];
+            },
+            methods: {
+                showModal () {
+                    this.createFlag = true;
+                    this.$modal.show('user-modal');
+                },
+                registerUser () {
+                    const user = Object.assign({}, this.form);
+                    this.users.push(user),
+                    this.$modal.hide('user-modal')
+                    this.resetForm();
+                },
+                resetForm () {
+                    this.form.id='',
+                    this.form.name='',
+                    this.form.email=''
+                },
+                deleteUser (user) {
+                    const index = this.users.indexOf(user);
+                    this.users.splice(index, 1);
+                },
+                editUser (user) {
+                    this.createFlag = false;
+                    this.editIndex = this.users.indexOf(user);
+                    this.form = Object.assign({}, user);
+                    this.$modal.show('user-modal');
+                },
+                updateUser () {
+                    Object.assign(this.users[this.editIndex], this.form);
+                    this.$modal.hide('user-modal');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

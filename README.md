@@ -302,6 +302,13 @@ const VueComponent = Vue.extend({
 }),
 ```
 
+### templateタグ
+
+- 条件付きレンダリングで複数要素を対象とする場合（v-if）
+- リストレンダリングで複数要素を対象とする場合（v-for）
+- 名前付きスロット（v-slot）
+- 単一ファイルコンポーネント
+
 
 
 ## コンポーネント
@@ -440,6 +447,72 @@ Vue.jsのコンポーネントは、再利用可能なVueインスタンス
   
 
 - #### 単一ファイルコンポーネント（後述）
+
+- #### スロット
+
+    親コンポーネントから子コンポーネントにコンテンツを挿入する
+
+    - 単一スロット
+
+      ```html
+      <!--親コンポーネント-->
+      <template>
+      <div>
+          <myButton>送信する</myButton> <!--コンテンツあり-->
+          <myButton></myButton> <!--コンテンツなし-->
+      </div>
+      </template>
+      ```
+
+      ```html
+      <!--子コンポーネント-->
+      <template>
+      <button>
+          <slot>OK</slot> <!--親コンポーネントから渡せたコンテンツに差し替えられる-->
+      </button>
+      </template>
+      ```
+
+    - 名前付きスロット
+
+      - 親コンポーネント -> slot要素のname属性を指定
+      - 子コンポーネント -> コンテンツのslot属性にnameを指定する
+
+      ```html
+      <!--親コンポーネント-->
+      <template>
+      <div>
+          <MyPage>
+              <h1 slot="header">This is my page</h1>
+              <p>This is main contents</p>
+              <p slot="footer">This is footer</p>
+          </MyPage>
+      </div>
+      </template>
+      ```
+
+      
+
+      ```html
+      <!--子コンポーネント-->
+      <template>
+      <div>
+          <header>
+              <slot name="header"></slot>
+          </header>
+          <main>
+              <slot></slot>
+          </main>
+          <footer>
+              <slot name="footer"></slot>
+          </footer>
+      </div>
+      </template>
+      ```
+
+    - スロットのスコープ
+
+      スロットに差し込まれるコンテンツは親コンポーネントのスコープが適用される
 
 ### コンポーネントのデータ
 
@@ -759,3 +832,6 @@ const app = new Vue({ router:router }).$mount('#app');
 
 
 ## 単一ファイルコンポーネント（SFC）
+
+- templateを使うにはvue-template-compilerが必要
+- sfc -> template -> render関数 -> htmlの順にコンパイルされる
