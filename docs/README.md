@@ -327,7 +327,7 @@ const app = new Vue({
 ```html
 <div id="app">
     <hello-world></hello-world>
-	  <hello-world></hello-world> <!--再利用できる-->
+    <hello-world></hello-world> <!--再利用できる-->
 </div>
 ```
 
@@ -488,7 +488,7 @@ const app = new Vue({
 ```html
 <!--親コンポーネント-->
 <div id="app">
-  	<!--[TIPS] v-forでv-bind:keyを指定しないと怒られる-->
+    <!--[TIPS] v-forでv-bind:keyを指定しないと怒られる-->
     <blog-post v-for="post in posts" :key="post.id" :post="post"></blog-post> //ココ
 </div>
 ```
@@ -505,7 +505,7 @@ const app = new Vue({
 Vue.component('emit-event', {
     template: `<button v-on:click="clickEvent">Button</button>`,
     methods: {
-        clickEvent() {							//①子イベント発火
+        clickEvent() {			//①子イベント発火
           this.$emit('from-child')	//②親イベント起爆
         }
     }
@@ -514,7 +514,7 @@ Vue.component('emit-event', {
 const app = new Vue({
     el:'#app',
     methods: {
-        alertMessage() { alert('子からイベント受け取ったよ'); }	//④親イベントのメソッド実行
+        alertMessage() { alert('子からイベント受け取ったよ'); } //④親イベントのメソッド実行
     }
 });
 ```
@@ -647,7 +647,7 @@ Vue.component('slot-test', {
 ```vue
 /*User.vue - 子コンポーネント*/
 <template>
-		<p>この人の名前は<slot>名無しの権兵衛</slot>です</p> //デフォルト値
+	<p>この人の名前は<slot>名無しの権兵衛</slot>です</p> //デフォルト値
 </template>
 <script>
 export default {
@@ -658,8 +658,8 @@ export default {
 ```vue
 /*Test.vue - 親コンポーネント*/
 <template>
-    <User>John Doe</User> //この人の名前はJohn Doeです
-		<User></User>					//この人の名前は名無しの権兵衛です
+    <User>John Doe</User>	//この人の名前はJohn Doeです
+    <User></User>		//この人の名前は名無しの権兵衛です
 </template>
 <script>
 import User from './components/User'
@@ -751,8 +751,8 @@ export default {
 <template>
     <User v-slot:firstName="slotProps">　//子のデータを受け取る
       {{ slotProps.user.firstName }}　//John:子から受け取ったslotPropsプロパティを参照する
-  	</User>
-		<User></User> //Doe:デフォルト値（子コンポーネントが自身のdataプロパティ）を参照する
+    </User>
+    <User></User> //Doe:デフォルト値（子コンポーネントが自身のdataプロパティ）を参照する
 </template>
 <script>
 import User from './components/User'
@@ -909,7 +909,7 @@ export default {
 /*親*/
 <template>
 <Menu>
-    <template v-slot:activator="{ on }"> 					//子のon関数を受け取り
+    <template v-slot:activator="{ on }"> 		//子のon関数を受け取り
         <button v-on:click="on">Click it</button>	//挿入するタグのリスナに設定
     </template>
     <ul>
