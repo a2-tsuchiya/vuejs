@@ -1039,6 +1039,193 @@ Slot:{ "default": [ { "text": " I'd like to know about $vm.slots. ", "raw": fals
 
 ## Render関数
 
+### 1. vue-cliのrender関数
+
+```javascript
+new Vue({
+	render:h => h(App),
+}).$mount('#app');
+/*h:hyper Scriptの略で以下と同義*/
+new Vue({
+  render:function(createElement) {
+  	return createElement(App);
+  }
+});
+```
+
+### 2. 基本のrender関数
+
+```vue
+<div id="app"></div>
+<script>
+const app = new Vue({
+    el:'#app',
+    data: {
+        message: 'Hello World'
+    },
+    render(createElement) {
+        return createElement('h1',
+        {
+            class:'hello',
+            style:'background-color:red; color:white;'
+        },
+        this.message);
+    }
+});
+</script>
+```
+
+- v-bindでclassを設定する
+
+```javascript
+const app = new Vue({
+    el:'#app',
+    data: {
+        message: 'Hello World',
+        isActive: true,
+        isFalse: false,
+    },
+    render(createElement) {
+        return createElement('h1', { class: {
+            foo: this.isActive,
+            bar: this.isFalse
+        }}, this.message);
+    }
+});
+```
+
+- イベントを設定する
+
+```javascript
+const app = new Vue({
+    el:'#app',
+    data: {
+        message: 'Hello World',
+    },
+    methods: {
+        alert() { alert('click') }
+    },
+    render(createElement) {
+        return createElement('h1', { on:
+            { click: this.alert }
+        }, this.message)
+    }
+});
+```
+
+- 子要素を追加する
+
+```javascript
+const app = new Vue({
+    el:'#app',
+    data: {
+        message: 'Hello World',
+    },
+    render(createElement) {
+        return createElement('ul', {class:'hello'},
+            [
+                createElement('li', this.message),
+                createElement('li', 'Hello Vue')
+            ]
+        );
+    }
+});
+```
+
+### 3. コンポーネントでrender関数を使う
+
+```vue
+/*親*/
+<template>
+<div><Header :level="1">Render関数を理解する</Header></div>
+</template>
+<script>
+import Header from './components/Header';
+export default {
+    name: 'test',
+    components: { Header }
+}
+```
+
+```vue
+/*子- render関数を使う場合*/
+<script>
+export default {
+    name: 'Header',
+    props: {
+        level: {
+            type: Number,
+            required: true,
+        }
+    },
+    render: function(createElement) {
+        return createElement(
+            'h' + this.level,
+            this.$slots.default
+        )
+    },
+}
+</script>
+```
+
+```vue
+/*子- templateタグを使う場合*/
+<template>
+    <h1 v-if="level === 1"><slot></slot></h1>
+</template>
+<script>
+export default {
+    name: 'Header',
+    props: {
+        level: {
+            type: Number,
+            required: true,
+        }
+    },
+}
+</script>
+```
+
+- h2タグに変更する場合
+  - render関数ー親コンポーネントを変えるだけ（再利用性が高い）
+  - templateタグーh2,h3,...と子コンポーネントを条件を都度変更する
+
+```vue
+/*親 - render関数を使う場合*/
+<template>
+<div><Header :level="2">Render関数を理解する</Header></div> //levelの値を変えるだけ
+</template>
+<script>
+import Header from './components/Header';
+export default {
+    name: 'test',
+    components: { Header }
+}
+```
+
+```vue
+/*子- templateタグを使う場合*/
+<template>
+<div>
+    <h1 v-if="level === 1"><slot></slot></h1>
+    <h2 v-if="level === 2"><slot></slot></h2>
+</div>
+</template>
+<script>
+export default {
+    name: 'Header',
+    props: {
+        level: {
+            type: Number,
+            required: true,
+        }
+    },
+}
+</script>
+```
+
+
+
 ## Vue Router
 
 ## Vuetify

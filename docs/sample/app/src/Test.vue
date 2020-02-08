@@ -1,17 +1,14 @@
 <template>
 <div>
-    <BlogPost>
-        <template #title>vue.js</template>
-        I'd like to know about $vm.slots.
-    </BlogPost>
+    <Header :level="2">Render関数を理解する</Header>
 </div>
 </template>
 <script>
-import BlogPost from './components/User';
+import Header from './components/Header';
 export default {
     name: 'test',
     components: {
-        BlogPost
+        Header
     }
 }
 

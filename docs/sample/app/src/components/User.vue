@@ -8,9 +8,7 @@
 <script>
 export default {
     computed: {
-        slotValue() {
-            return this.$slots;
-        }
+        slotValue() { return this.$slots; }
     }
 }
 </script>

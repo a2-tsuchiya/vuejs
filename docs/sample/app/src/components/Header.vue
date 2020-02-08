@@ -1,3 +1,14 @@
+<template>
+<div>
+    <h1 v-if="level === 1">
+        <slot></slot>
+    </h1>
+    <h2 v-if="level === 2">
+        <slot></slot>
+    </h2>    
+</div>
+</template>
+
 <script>
 export default {
     name: 'Header',
@@ -7,11 +18,11 @@ export default {
             required: true,
         }
     },
-    render: function(el) {
-        return el(
-            'h' + this.level,
-            this.$slots.default
-        )
-    },
+    // render: function(createElement) {
+    //     return createElement(
+    //         'h' + this.level,
+    //         this.$slots.default
+    //     )
+    // },
 }
 </script>
