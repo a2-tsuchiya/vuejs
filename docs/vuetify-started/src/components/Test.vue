@@ -10,7 +10,7 @@
                     <v-select
                         :items="categorys"
                         item-text="name"
-                        imte-value="index"
+                        item-value="index"
                         label="カテゴリから探す"
                         v-model="category"
                         prepend-icon="mdi-file-search-outline"
